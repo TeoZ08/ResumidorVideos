@@ -21,7 +21,7 @@ def baixar_legenda(url_do_video):
         'subtitlesformat': 'srt',
         'outtmpl': nome_arquivo,    # Força o nome ser "legenda_temporaria"
         'quiet': True,
-        'impersonate': 'chrome' #ForÇando o 'disfarce' do navegador
+        'impersonate': 'Chrome-110' #ForÇando o 'disfarce' do navegador
     }
 
     try:

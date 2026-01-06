@@ -4,10 +4,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-api_key = os.getenv("GEMINI_API_KEY")
-
 def resumir_transcricao_gemini(texto):
-    client = genai.Client()
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
     prompt = f"""
     Você é um assistente especialista em resumos.
@@ -19,8 +17,8 @@ def resumir_transcricao_gemini(texto):
     """
     try:
         response = client.models.generate_content(
-            model = 'gemini-1.5-flash',
-            content = prompt
+            model='gemini-1.5-flash',
+            contents=prompt
         )
         return response.text
     except Exception as e:

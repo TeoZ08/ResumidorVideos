@@ -1,5 +1,6 @@
 import yt_dlp
 import os
+import traceback # Importante para ver o erro real
 
 # Transformamos em função para receber a URL de fora
 def baixar_legenda(url_do_video):
@@ -21,6 +22,7 @@ def baixar_legenda(url_do_video):
         'subtitlesformat': 'srt',
         'outtmpl': nome_arquivo,    # Força o nome ser "legenda_temporaria"
         'quiet': True,
+        'verbose': True,
         'impersonate': 'Chrome-110' #ForÇando o 'disfarce' do navegador
     }
 

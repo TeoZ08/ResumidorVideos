@@ -23,7 +23,16 @@ def baixar_legenda(url_do_video):
         'outtmpl': nome_arquivo,    # Força o nome ser "legenda_temporaria"
         'quiet': True,
         'verbose': True,
-        'impersonate': 'Chrome-110' #ForÇando o 'disfarce' do navegador
+        # --- ESTRATÉGIA ANTI-BLOQUEIO NATIVA ---
+        # 1. Força IPv4: O Google costuma bloquear faixas de IPv6 (erro 429), mas confia mais no IPv4.
+        'force_ipv4': True,
+        
+        # 2. Cabeçalho manual: Diz ao YouTube que somos um navegador Chrome comum.
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept-Language': 'en-US,en;q=0.9',
+        }
+
     }
 
     try:
@@ -37,6 +46,7 @@ def baixar_legenda(url_do_video):
                 return f"{nome_arquivo}.en.srt"
             else:
                 return None
-    except Exception as e:
-        print(f"Erro: {e}")
+    except Exception:
+        # Imprime o erro completo na tela
+        traceback.print_exc()
         return None

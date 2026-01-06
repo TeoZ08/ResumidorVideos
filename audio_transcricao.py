@@ -6,9 +6,12 @@ def baixar_legenda(url_do_video):
     # Definimos um nome fixo para não termos erro de arquivo não encontrado
     nome_arquivo = "legenda_temporaria"
 
-    # Removemos arquivos antigos para garantir
+
+    # Remove arquivos antigos
     if os.path.exists(f"{nome_arquivo}.pt.srt"):
         os.remove(f"{nome_arquivo}.pt.srt")
+    if os.path.exists(f"{nome_arquivo}.en.srt"):
+        os.remove(f"{nome_arquivo}.en.srt")
 
     ydl_opts = {
         'skip_download': True,      # Não baixa o vídeo nem áudio, SÓ a legenda (fica mais rápido)
@@ -17,7 +20,8 @@ def baixar_legenda(url_do_video):
         'subtitleslangs': ['pt', 'en'],
         'subtitlesformat': 'srt',
         'outtmpl': nome_arquivo,    # Força o nome ser "legenda_temporaria"
-        'quiet': True
+        'quiet': True,
+        'impersonate': 'chrome' #ForÇando o 'disfarce' do navegador
     }
 
     try:

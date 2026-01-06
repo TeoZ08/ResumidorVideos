@@ -3,3 +3,4 @@ venv/
 __pycache__/
 *.srt
 video_temp*
+cookies.txt

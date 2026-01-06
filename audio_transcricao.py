@@ -1,9 +1,9 @@
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.formatters import TextFormatter
 import re
+import os # Importante para verificar se o arquivo existe
 
 def extrair_id_video(url):
-    """Extrai o ID de 11 caracteres de URLs comuns do YouTube."""
     patterns = [
         r'(?:v=|\/)([0-9A-Za-z_-]{11}).*',
         r'(?:youtu\.be\/)([0-9A-Za-z_-]{11})'
@@ -20,17 +20,23 @@ def obter_transcricao(url_video):
         print("Erro: ID do vídeo não encontrado na URL.")
         return None
 
+    # Verifica se o arquivo de cookies existe na pasta
+    arquivo_cookies = 'cookies.txt'
+    if not os.path.exists(arquivo_cookies):
+        # Se não tiver cookies, tenta sem (mas avisa)
+        print("Aviso: 'cookies.txt' não encontrado. Tentando sem autenticação...")
+        arquivo_cookies = None
+
     try:
-        # Tenta buscar legendas em Português, depois Inglês
+        # Passamos o parâmetro cookies (se ele existir)
         transcript_list = YouTubeTranscriptApi.get_transcript(
             video_id, 
-            languages=['pt', 'pt-BR', 'en', 'en-US']
+            languages=['pt', 'pt-BR', 'en', 'en-US'],
+            cookies=arquivo_cookies
         )
         
-        # O formatter junta o texto e remove timestamps automaticamente
         formatter = TextFormatter()
         texto_limpo = formatter.format_transcript(transcript_list)
-        
         return texto_limpo
 
     except Exception as e:

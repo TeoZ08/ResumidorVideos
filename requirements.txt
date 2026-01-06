@@ -1,5 +1,4 @@
-# requirements.txt
 google-genai
 yt-dlp
-curl_cffi
+curl_cffi<0.14
 python-dotenv

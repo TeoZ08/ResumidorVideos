@@ -21,19 +21,18 @@ def obter_transcricao(url_video):
         return None
 
     try:
-        # Tenta buscar legendas em Português, depois Inglês (e variantes)
+        # Tenta buscar legendas em Português, depois Inglês
         transcript_list = YouTubeTranscriptApi.get_transcript(
             video_id, 
             languages=['pt', 'pt-BR', 'en', 'en-US']
         )
         
-        # O formatter já junta o texto e remove os timestamps automaticamente
+        # O formatter junta o texto e remove timestamps automaticamente
         formatter = TextFormatter()
         texto_limpo = formatter.format_transcript(transcript_list)
         
         return texto_limpo
 
     except Exception as e:
-        # A lib lança exceções claras se não houver legenda ou se for bloqueado
         print(f"Erro ao obter transcrição: {e}")
         return None

@@ -4,12 +4,12 @@ from apigemini import resumir_transcricao_gemini
 # 1. Pede a URL
 link = input("URL do vídeo: ")
 
-# 2. Chama a função que já retorna o texto pronto
+# 2. Chama a função que já retorna o texto pronto da memória
 print("Baixando transcrição...")
 texto_legenda = obter_transcricao(link)
 
 if texto_legenda:
-    # 3. Manda pro Gemini diretamente da memória
+    # 3. Manda pro Gemini
     print("Gerando resumo...")
     resumo = resumir_transcricao_gemini(texto_legenda)
     

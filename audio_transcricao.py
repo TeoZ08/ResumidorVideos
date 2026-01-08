@@ -5,7 +5,6 @@ import re
 def extrair_id_video(url):
     """
     Extrai o ID do vídeo a partir de URLs comuns do YouTube.
-    Suporta: youtube.com/watch?v=ID, youtu.be/ID, shorts/ID
     """
     padroes = [
         r'(?:v=|\/)([0-9A-Za-z_-]{11}).*',
@@ -29,19 +28,30 @@ def obter_transcricao(url_video):
     print(f"Processando vídeo ID: {video_id}...")
 
     try:
-        # Tenta buscar legendas em Português ou Inglês (prioridade para PT)
-        transcript = YouTubeTranscriptApi.get_transcript(
-            video_id, 
-            languages=['pt', 'pt-BR', 'en', 'en-US']
-        )
+        # --- CORREÇÃO PARA VERSÃO 1.2.3+ ---
+        # 1. Instancia a classe (agora obrigatório)
+        ytt = YouTubeTranscriptApi()
         
-        # Formata o JSON retornado para texto corrido
+        # 2. Lista todas as legendas disponíveis para o vídeo
+        transcript_list = ytt.list(video_id)
+        
+        # 3. Encontra a melhor legenda (Prioridade: PT > PT-BR > EN > EN-US)
+        transcript = transcript_list.find_transcript(['pt', 'pt-BR', 'en', 'en-US'])
+        
+        # 4. Baixa o conteúdo (retorna objeto FetchedTranscript)
+        fetched_obj = transcript.fetch()
+        
+        # 5. Converte para dados brutos (lista de dicts) que o formatador entende
+        if hasattr(fetched_obj, 'to_raw_data'):
+            transcript_data = fetched_obj.to_raw_data()
+        else:
+            transcript_data = fetched_obj
+            
+        # 6. Formata para texto corrido
         formatter = TextFormatter()
-        texto_formatado = formatter.format_transcript(transcript)
-        
-        return texto_formatado
+        return formatter.format_transcript(transcript_data)
 
     except Exception as e:
-        # Erros comuns: Vídeo sem legenda ou restrição de criador
+        # Tenta pegar erros específicos como "NoTranscriptFound"
         print(f"Erro ao obter transcrição: {e}")
         return None

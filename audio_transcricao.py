@@ -1,47 +1,47 @@
-import re
-from youtube_transcript_api import YouTubeTranscriptApi
-
-
-def extrair_id_video(url: str) -> str | None:
-    padroes = [
-        r"(?:v=|\/)([0-9A-Za-z_-]{11}).*",
-        r"(?:youtu\.be\/)([0-9A-Za-z_-]{11})",
-        r"(?:shorts\/)([0-9A-Za-z_-]{11})"
-    ]
-
-    for padrao in padroes:
-        match = re.search(padrao, url)
-        if match:
-            return match.group(1)
-
-    return None
-
+import xml.etree.ElementTree as ET
+from pytubefix import YouTube
 
 def obter_transcricao(url_video: str) -> str | None:
-    video_id = extrair_id_video(url_video)
-
-    if not video_id:
-        print("❌ Não foi possível extrair o ID do vídeo.")
-        return None
-
-    print(f"Processando vídeo ID: {video_id}...")
-
     try:
-        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+        print(f"Processando: {url_video}...")
+        yt = YouTube(url_video)
+        
+        # A pytubefix lista as legendas disponíveis
+        captions = yt.captions
+        
+        # Lógica de prioridade: Manual PT -> Auto PT -> Manual EN -> Auto EN
+        legenda_escolhida = None
+        
+        prioridades = ['pt', 'a.pt', 'pt-BR', 'a.pt-BR', 'en', 'a.en']
+        
+        for lang in prioridades:
+            if lang in captions:
+                legenda_escolhida = captions[lang]
+                print(f"✅ Legenda encontrada: {lang}")
+                break
+        
+        if not legenda_escolhida:
+            if len(captions) > 0:
+                legenda_escolhida = list(captions.values())[0]
+                print(f"⚠️ Usando legenda alternativa: {legenda_escolhida.code}")
+            else:
+                print("❌ Nenhuma legenda encontrada.")
+                return None
 
-        try:
-            transcript = transcript_list.find_manually_created_transcript(['pt', 'pt-BR'])
-        except:
-            try:
-                transcript = transcript_list.find_manually_created_transcript(['en', 'en-US'])
-            except:
-                transcript = transcript_list.find_generated_transcript(['pt', 'pt-BR', 'en'])
+        # Obtém o XML da legenda
+        xml_captions = legenda_escolhida.xml_captions
 
-        dados = transcript.fetch()
-        texto = " ".join(item["text"] for item in dados)
-
-        return texto
+        # Limpa o XML para obter apenas o texto corrido
+        root = ET.fromstring(xml_captions)
+        linhas = []
+        for child in root:
+            if child.text and child.text.strip():
+                texto_limpo = child.text.replace('\n', ' ').strip()
+                linhas.append(texto_limpo)
+        
+        texto_completo = " ".join(linhas)
+        return texto_completo
 
     except Exception as e:
-        print(f"Erro ao obter transcrição: {e}")
+        print(f"❌ Erro ao obter transcrição com pytubefix: {e}")
         return None

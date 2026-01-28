@@ -1,25 +1,20 @@
 # 🎥 Resumidor de Vídeos com IA (Gemini)
 
-Uma ferramenta simples e poderosa que assiste a vídeos do YouTube por você!
-Este programa baixa as legendas de um vídeo e usa a Inteligência Artificial do Google (Gemini) para criar um resumo com os pontos principais.
-
-Ideal para estudantes e desenvolvedores que querem economizar tempo.
-
-## ✨ O que ele faz?
+## Funcionalidades
 
 1. **Pega a legenda:** Baixa o texto do vídeo (mesmo que seja legenda automática).
 2. **Resume com IA:** Envia o texto para o Google Gemini gerar um resumo estruturado.
 3. **Salva no PC:** Pode salvar o resumo em um arquivo de texto bonitinho (Markdown).
 4. **Memória:** Se você pedir o resumo do mesmo vídeo de novo, ele entrega na hora (sem gastar internet ou cota da IA).
 
-## 🛠️ Pré-requisitos
+## Pré-requisitos
 
 Antes de começar, você precisa ter instalado no seu computador:
 
 - **Python 3.10 ou superior** ([Baixar aqui](https://www.python.org/downloads/))
 - **Git** (Opcional, para clonar o projeto)
 
-## 🚀 Passo a Passo da Instalação
+## Passo a Passo da Instalação
 
 ### 1. Baixe o código
 
@@ -35,7 +30,7 @@ _(Ou apenas baixe o arquivo ZIP e extraia na sua pasta)._
 
 ### 2. Prepare o ambiente (Importante!)
 
-Para não bagunçar seu computador, vamos criar uma "caixa" isolada para o projeto (Ambiente Virtual):
+Criar um Ambiente Virtual para o projeto:
 
 **No Linux/Mac:**
 
@@ -109,7 +104,7 @@ python main.py "URL_DO_VIDEO" --forcar
 
 ```
 
-## ❓ Problemas Comuns
+## Problemas Comuns
 
 - **Erro `ModuleNotFoundError`:** Você provavelmente esqueceu de ativar o ambiente virtual (`venv`).
 - **Erro 429 (Resource Exhausted):** A API gratuita tem limites. O programa vai esperar 30 segundos e tentar de novo automaticamente.

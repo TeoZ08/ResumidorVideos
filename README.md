@@ -104,7 +104,80 @@ python main.py "URL_DO_VIDEO" --forcar
 
 ```
 
-## Problemas Comuns
+---
+
+## 🌐 Interface web
+
+O projeto agora também possui uma versão web com **FastAPI** no backend e **React + Vite** no frontend. A API do Gemini e o arquivo `.env` continuam apenas no backend.
+
+### Rodar o backend
+
+```bash
+uvicorn backend.app.main:app --reload
+```
+
+A API ficará disponível em:
+
+```text
+http://localhost:8000
+```
+
+Endpoints principais:
+
+- `GET /api/health`
+- `POST /api/summarize`
+- `GET /api/history`
+- `GET /api/history/{video_id}`
+- `GET /api/export/{video_id}`
+
+### Rodar o frontend
+
+Em outro terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Se necessário, crie `frontend/.env` com:
+
+```env
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+O frontend ficará disponível em:
+
+```text
+http://localhost:5173
+```
+
+### Build de produção
+
+```bash
+cd frontend
+npm install
+npm run build
+cd ..
+uvicorn backend.app.main:app
+```
+
+Depois do build, o FastAPI serve os arquivos de `frontend/dist`.
+
+---
+
+## 🚀 Deploy no Render
+
+O arquivo `render.yaml` já define:
+
+- instalação das dependências Python;
+- instalação e build do frontend;
+- execução do FastAPI com `uvicorn`;
+- variáveis `PYTHON_VERSION`, `NODE_VERSION` e `GEMINI_API_KEY`.
+
+No Render, configure `GEMINI_API_KEY` como variável secreta. Não coloque a chave no código, no README ou em arquivos versionados.
+
+## ❓ Problemas Comuns
 
 - **Erro `ModuleNotFoundError`:** Você provavelmente esqueceu de ativar o ambiente virtual (`venv`).
 - **Erro 429 (Resource Exhausted):** A API gratuita tem limites. O programa vai esperar 30 segundos e tentar de novo automaticamente.

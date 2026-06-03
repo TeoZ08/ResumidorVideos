@@ -1,6 +1,8 @@
 .env
 venv/
 __pycache__/
+frontend/dist/
+frontend/node_modules/
 *.log
 *.srt
 video_temp*

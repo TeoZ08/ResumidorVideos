@@ -21,8 +21,8 @@ Antes de começar, você precisa ter instalado no seu computador:
 Abra o seu terminal (ou prompt de comando) e rode:
 
 ```bash
-git clone [https://github.com/SEU-USUARIO/NOME-DO-REPO.git](https://github.com/SEU-USUARIO/NOME-DO-REPO.git)
-cd TranscricaoPython
+git clone https://github.com/TeoZ08/ResumidorVideos.git
+cd ResumidorVideos
 
 ```
 
@@ -88,11 +88,34 @@ python main.py "COLE_A_URL_DO_VIDEO_AQUI"
 
 ### 🔹 Salvar o resumo em um arquivo
 
-Isso cria um arquivo `.md` no seu computador para ler depois.
+Isso cria um arquivo `.md` no seu computador para ler depois ou reaproveitar em uma base de contexto.
 
 ```
 python main.py "URL_DO_VIDEO" --salvar
 
+```
+
+O Markdown salvo segue uma estrutura de contexto:
+
+```markdown
+# Resumo de vídeo
+
+## Fonte
+URL:
+Título:
+Data de processamento:
+
+## Resumo
+
+## Pontos principais
+
+## Conceitos importantes
+
+## Tarefas/ações sugeridas
+
+## Possível destino no teo-contexto
+
+## Observações
 ```
 
 ### 🔹 Forçar uma nova análise
@@ -128,7 +151,7 @@ Endpoints principais:
 - `POST /api/summarize`
 - `GET /api/history`
 - `GET /api/history/{video_id}`
-- `GET /api/export/{video_id}`
+- `GET /api/export/{video_id}` para baixar Markdown estruturado para contexto
 
 ### Rodar o frontend
 
@@ -176,6 +199,21 @@ O arquivo `render.yaml` já define:
 - variáveis `PYTHON_VERSION`, `NODE_VERSION` e `GEMINI_API_KEY`.
 
 No Render, configure `GEMINI_API_KEY` como variável secreta. Não coloque a chave no código, no README ou em arquivos versionados.
+
+## Segurança / Limitações
+
+- `GEMINI_API_KEY` deve ficar apenas no backend.
+- O projeto depende de legendas disponíveis no YouTube.
+- A exportação Markdown organiza o resumo, mas ainda não extrai automaticamente tarefas e conceitos em campos separados.
+- Fallback com `yt-dlp` para legendas automáticas é um próximo passo, não uma dependência ativa neste momento.
+- Teo Capture não está implementado aqui; uma integração futura pode enviar resumos revisados para o `teo-contexto`.
+
+## Próximos passos
+
+- Implementar fallback opcional com `yt-dlp`.
+- Melhorar o prompt do Gemini para preencher pontos principais, conceitos e tarefas separadamente.
+- Criar integração controlada ResumidorVideos → `teo-contexto`.
+- Adicionar testes automatizados para serviços de vídeo, resumo, banco e exportação.
 
 ## ❓ Problemas Comuns
 

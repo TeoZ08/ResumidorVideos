@@ -1,6 +1,7 @@
 import argparse
 import sys
 
+from backend.app.services.export_service import montar_markdown_contexto
 from backend.app.services.summary_service import SummaryError, processar_video
 from backend.app.services.video_service import extrair_id_video
 
@@ -33,11 +34,7 @@ def main():
     if args.salvar:
         nome_arquivo = f"Resumo_{resultado['video_id']}.md"
         with open(nome_arquivo, "w", encoding="utf-8") as f:
-            f.write(f"# Resumo do Vídeo: {resultado['title']}\n\n")
-            f.write(f"**ID do vídeo:** {resultado['video_id']}\n")
-            f.write(f"**Data de processamento:** {resultado['created_at'] or 'Não informado'}\n\n")
-            f.write("---\n\n")
-            f.write(resumo)
+            f.write(montar_markdown_contexto(resultado))
         print(f"\n💾 Arquivo criado: {nome_arquivo}")
     else:
         print("\n" + "="*40)

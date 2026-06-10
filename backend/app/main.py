@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .schemas import HistoryDetail, HistoryItem, SummarizeRequest, SummaryResponse
 from .services import database_service
+from .services.export_service import montar_markdown_contexto
 from .services.summary_service import SummaryError, processar_video
 
 
@@ -84,18 +85,7 @@ def export_summary(video_id: str):
     if not item:
         raise HTTPException(status_code=404, detail="Resumo não encontrado.")
 
-    conteudo = "\n".join(
-        [
-            f"# Resumo do Vídeo: {item['title']}",
-            "",
-            f"**ID do vídeo:** {item['video_id']}",
-            f"**Data de processamento:** {item['created_at'] or 'Não informado'}",
-            "",
-            "---",
-            "",
-            item["summary"],
-        ]
-    )
+    conteudo = montar_markdown_contexto(item)
 
     return Response(
         content=conteudo,

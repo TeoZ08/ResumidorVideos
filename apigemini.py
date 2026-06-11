@@ -1,9 +1,17 @@
 import os
 import time
-from google import genai
+
 from dotenv import load_dotenv
+from google import genai
+from google.genai import types
+
 
 load_dotenv()
+
+MAX_CARACTERES = 60_000
+TIMEOUT_MS = 90_000
+MAX_RETRIES = 3
+
 
 def resumir_transcricao(texto: str) -> str:
     api_key = os.getenv("GEMINI_API_KEY")
@@ -11,47 +19,81 @@ def resumir_transcricao(texto: str) -> str:
     if not api_key:
         return "❌ ERRO: GEMINI_API_KEY não encontrada no .env"
 
-    client = genai.Client(api_key=api_key)
+    model_name = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
 
-    # O Gemini Flash 1.5 suporta ~1 milhão de tokens.
-    # 100k caracteres é seguro e dá folga.
-    MAX_CARACTERES = 100000 
     if len(texto) > MAX_CARACTERES:
+        print(
+            f"⚠️ Transcrição muito extensa: {len(texto)} caracteres. "
+            f"Limitando para {MAX_CARACTERES}."
+        )
         texto = texto[:MAX_CARACTERES]
 
     prompt = f"""
-Você é um assistente especialista em resumos.
-Gere um resumo em tópicos (bullet points),
-destacando apenas as ideias principais do texto abaixo.
+Você é um assistente especialista em resumos de conteúdos educacionais.
 
-TEXTO:
+Produza um resumo estruturado em português contendo:
+
+1. Tema central
+2. Principais ideias
+3. Conceitos importantes
+4. Exemplos mencionados
+5. Conclusão
+6. Tarefas ou ações sugeridas, quando existirem
+
+Seja objetivo, mas preserve informações relevantes.
+
+TRANSCRIÇÃO:
+
 {texto}
 """
-    
-    # MUDANÇA 1: Usar 'gemini-flash-latest' (Geralmente é o 1.5 Flash)
-    # Ele tem limites gratuitos muito mais generosos que o 2.0 experimental.
-    model_name = "gemini-flash-latest" 
-    
-    print(f"🤖 Enviando para o Gemini ({model_name})...")
 
-    # MUDANÇA 2: Retry Logic (Tentar de novo se der erro 429)
-    max_retries = 3
-    for attempt in range(max_retries):
+    for tentativa in range(1, MAX_RETRIES + 1):
         try:
-            response = client.models.generate_content(
-                model=model_name,
-                contents=prompt
+            print(
+                f"🤖 Enviando para o Gemini ({model_name}) — "
+                f"tentativa {tentativa}/{MAX_RETRIES}..."
             )
-            return response.text
 
-        except Exception as e:
-            erro_str = str(e)
-            # Se for erro de cota (429), espera e tenta de novo
+            inicio = time.time()
+
+            with genai.Client(
+                api_key=api_key,
+                http_options=types.HttpOptions(timeout=TIMEOUT_MS),
+            ) as client:
+                resposta = client.models.generate_content(
+                    model=model_name,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        temperature=0.2,
+                        max_output_tokens=2_500,
+                    ),
+                )
+
+            tempo = time.time() - inicio
+            print(f"✅ Resposta recebida em {tempo:.1f} segundos.")
+
+            if not resposta.text:
+                return "❌ Erro ao gerar resumo: resposta vazia do Gemini."
+
+            return resposta.text
+
+        except Exception as erro:
+            erro_str = str(erro)
+
+            print(
+                f"⚠️ Falha na tentativa {tentativa}: "
+                f"{type(erro).__name__}: {erro}"
+            )
+
+            if tentativa >= MAX_RETRIES:
+                return f"❌ Erro ao gerar resumo: {erro}"
+
             if "429" in erro_str or "RESOURCE_EXHAUSTED" in erro_str:
-                print(f"⏳ Cota atingida. Tentativa {attempt+1}/{max_retries}. Aguardando 30s...")
-                time.sleep(30)
+                espera = 30 * tentativa
             else:
-                # Se for outro erro (ex: chave inválida), retorna logo
-                return f"❌ Erro ao gerar resumo: {e}"
+                espera = 5 * tentativa
 
-    return "❌ Falha: O serviço está congestionado. Tente novamente mais tarde."
+            print(f"⏳ Nova tentativa em {espera} segundos...")
+            time.sleep(espera)
+
+    return "❌ Falha: não foi possível gerar o resumo."

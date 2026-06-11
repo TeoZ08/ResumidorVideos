@@ -3,4 +3,5 @@ uvicorn[standard]
 python-dotenv
 google-genai
 pytubefix
+youtube-transcript-api
 pydantic

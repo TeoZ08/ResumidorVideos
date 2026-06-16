@@ -7,9 +7,9 @@ from backend.app.services.summary_service import SummaryError, processar_video
 from backend.app.services.video_service import extrair_id_video
 
 
-def salvar_transcricao(url: str, video_id: str) -> None:
+def salvar_transcricao(url: str, video_id: str, cookies_file: str | None) -> None:
     """Obtém e salva somente a transcrição, sem chamar o Gemini."""
-    transcricao = obter_transcricao(url)
+    transcricao = obter_transcricao(url, cookies_file)
 
     if not transcricao:
         print(
@@ -51,6 +51,10 @@ def main():
             "Salva somente a transcrição em .txt e não envia conteúdo ao Gemini"
         ),
     )
+    parser.add_argument(
+        "--cookies",
+        help="Caminho para o arquivo de cookies do yt-dlp",
+    )
 
     args = parser.parse_args()
     video_id = extrair_id_video(args.url)
@@ -62,14 +66,18 @@ def main():
     print(f"🔍 Processando Vídeo ID: {video_id}")
 
     if args.somente_transcricao:
-        salvar_transcricao(args.url, video_id)
+        salvar_transcricao(args.url, video_id, args.cookies)
         return
 
     try:
         if args.forcar:
             print("🔄 Forçando nova análise...")
 
-        resultado = processar_video(args.url, force=args.forcar)
+        resultado = processar_video(
+            args.url,
+            force=args.forcar,
+            cookies_file_path=args.cookies,
+        )
         resumo = resultado["summary"]
 
         if resultado["from_cache"]:

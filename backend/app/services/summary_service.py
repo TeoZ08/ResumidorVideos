@@ -67,7 +67,7 @@ def _carregar_env():
         pass
 
 
-def processar_video(url: str, force: bool = False) -> dict:
+def processar_video(url: str, force: bool = False, cookies_file_path: str | None = None) -> dict:
     database_service.inicializar()
 
     video_id = extrair_id_video(url)
@@ -86,7 +86,7 @@ def processar_video(url: str, force: bool = False) -> dict:
     from audio_transcricao import obter_transcricao
     from apigemini import resumir_transcricao
 
-    transcricao = obter_transcricao(url)
+    transcricao = obter_transcricao(url, cookies_file_path)
     if not transcricao:
         raise TranscriptError()
 
